@@ -67,17 +67,18 @@ func init() {
 		os.Exit(0)
 	}
 
-	// Load config files.
+	// Load config files. Missing files are skipped silently; only unexpected
+	// errors (e.g. parse errors) are treated as fatal.
 	cfgFiles, _ := f.GetStringSlice("config")
 	for _, c := range cfgFiles {
-		lo.Printf("loading config file: %s", c)
 		if err := ko.Load(file.Provider(c), toml.Parser()); err != nil {
 			if os.IsNotExist(err) {
-				lo.Printf("config file not found, skipping: %s", c)
+				// Not logging skipped files to keep startup output clean.
 				continue
 			}
 			lo.Fatalf("error loading config file %s: %v", c, err)
 		}
+		lo.Printf("loaded config file: %s", c)
 	}
 
 	// Load environment variables (prefix LISTMONK_).
@@ -96,11 +97,4 @@ func init() {
 
 func main() {
 	lo.Printf("starting listmonk version %s | build: %s", version, buildString)
-
-	// Initialize the app.
-	app := &App{
-		log:    lo,
-		config: ko,
-	}
-
-	_ = app
+}
