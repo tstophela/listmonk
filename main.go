@@ -53,7 +53,8 @@ func init() {
 	f.Bool("upgrade", false, "upgrade the database schema to the latest version")
 	f.Bool("yes", false, "assume 'yes' to prompts during install/upgrade")
 	f.Bool("idempotent", false, "make --install run idempotently")
-	f.Bool("static-dir", false, "path to override the embedded static directory")
+	// Note: --static-dir should be a string flag, not bool, to accept a directory path.
+	f.String("static-dir", "", "path to override the embedded static directory")
 
 	if err := f.Parse(os.Args[1:]); err != nil {
 		lo.Fatalf("error parsing flags: %v", err)
@@ -104,5 +105,5 @@ func main() {
 	_ = app
 
 	// TODO: Initialize database, file system, and HTTP server.
-	lo.Println("listmonk initialized successfully")
+	lo.Println("listmonk initialized")
 }
