@@ -45,7 +45,8 @@ func init() {
 
 	// Default config paths: check both config.toml and config.toml.local so that
 	// a local override file can be used without modifying the main config.
-	f.StringSlice("config", []string{"config.toml", "config.toml.local"},
+	// Also include config.toml.personal for personal overrides (my addition).
+	f.StringSlice("config", []string{"config.toml", "config.toml.local", "config.toml.personal"},
 		"path to one or more config files (will be merged in order)")
 	f.Bool("version", false, "show current version and build information")
 	f.Bool("new-config", false, "generate a new sample config.toml file")
@@ -103,7 +104,3 @@ func main() {
 	}
 
 	_ = app
-
-	// TODO: Initialize database, file system, and HTTP server.
-	lo.Println("listmonk initialized")
-}
