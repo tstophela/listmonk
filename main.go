@@ -43,7 +43,9 @@ func init() {
 		os.Exit(0)
 	}
 
-	f.StringSlice("config", []string{"config.toml"},
+	// Default config paths: check both config.toml and config.toml.local so that
+	// a local override file can be used without modifying the main config.
+	f.StringSlice("config", []string{"config.toml", "config.toml.local"},
 		"path to one or more config files (will be merged in order)")
 	f.Bool("version", false, "show current version and build information")
 	f.Bool("new-config", false, "generate a new sample config.toml file")
