@@ -90,8 +90,8 @@ func init() {
 		lo.Fatalf("error loading environment variables: %v", err)
 	}
 
-	// Load CLI flag overrides (highest priority).
+	// Load CLI flag overrides (highest priority; overrides config file and env values).
 	if err := ko.Load(posflag.Provider(f, ".", ko), nil); err != nil {
-		lo.Fatalf("error loading flag overrides: %v", err)
+		lo.Fatalf("error loading flags: %v", err)
 	}
 }
