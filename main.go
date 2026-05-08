@@ -46,7 +46,9 @@ func init() {
 	// Default config paths: check both config.toml and config.toml.local so that
 	// a local override file can be used without modifying the main config.
 	// Also include config.toml.personal for personal overrides (my addition).
-	f.StringSlice("config", []string{"config.toml", "config.toml.local", "config.toml.personal"},
+	// Note: config.toml.secret is for secrets (e.g. DB passwords) that should
+	// never be committed to version control.
+	f.StringSlice("config", []string{"config.toml", "config.toml.local", "config.toml.personal", "config.toml.secret"},
 		"path to one or more config files (will be merged in order)")
 	f.Bool("version", false, "show current version and build information")
 	f.Bool("new-config", false, "generate a new sample config.toml file")
@@ -87,9 +89,4 @@ func init() {
 	// Using "__" as the nested key separator so that e.g. LISTMONK_DB__HOST maps to db.host.
 	if err := ko.Load(env.Provider("LISTMONK_", ".", func(s string) string {
 		return strings.Replace(
-			strings.ToLower(strings.TrimPrefix(s, "LISTMONK_")), "__", ".", -1)
-	}), nil); err != nil {
-		lo.Fatalf("error loading environment variables: %v", err)
-	}
-
-	// Load CLI flag overrides (highest prior
+			strings.ToLower(strings.TrimPrefix(s, "LISTMONK_")), "__",
