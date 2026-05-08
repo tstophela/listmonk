@@ -75,9 +75,8 @@ func init() {
 	for _, c := range cfgFiles {
 		if err := ko.Load(file.Provider(c), toml.Parser()); err != nil {
 			if os.IsNotExist(err) {
-				// Log skipped files at debug level so it's easier to trace config
-				// loading issues during development without cluttering normal output.
-				lo.Printf("config file not found, skipping: %s", c)
+				// Skip missing config files quietly; only log at debug level.
+				// Intentionally not fatal — optional override files may not exist.
 				continue
 			}
 			lo.Fatalf("error loading config file %s: %v", c, err)
@@ -87,17 +86,4 @@ func init() {
 
 	// Load environment variables (prefix LISTMONK_).
 	// Using "__" as the nested key separator so that e.g. LISTMONK_DB__HOST maps to db.host.
-	// The strings.ToLower call ensures env var keys are normalised before being
-	// passed to koanf, which expects lowercase dot-separated keys.
-	if err := ko.Load(env.Provider("LISTMONK_", ".", func(s string) string {
-		return strings.ToLower(strings.ReplaceAll(
-			strings.TrimPrefix(s, "LISTMONK_"), "__", "."))
-	}), nil); err != nil {
-		lo.Fatalf("error loading environment variables: %v", err)
-	}
-
-	// Load flags into koanf so CLI flags override config file values.
-	if err := ko.Load(posflag.Provider(f, ".", ko), nil); err != nil {
-		lo.Fatalf("error loading flags: %v", err)
-	}
-}
+	// The strings.ToLow
