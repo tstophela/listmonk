@@ -73,7 +73,9 @@ func init() {
 	for _, c := range cfgFiles {
 		if err := ko.Load(file.Provider(c), toml.Parser()); err != nil {
 			if os.IsNotExist(err) {
-				// Not logging skipped files to keep startup output clean.
+				// Log skipped files at debug level so it's easier to trace config
+				// loading issues during development without cluttering normal output.
+				lo.Printf("config file not found, skipping: %s", c)
 				continue
 			}
 			lo.Fatalf("error loading config file %s: %v", c, err)
@@ -90,8 +92,4 @@ func init() {
 		lo.Fatalf("error loading environment variables: %v", err)
 	}
 
-	// Load CLI flag overrides (highest priority — overrides config files and env vars).
-	if err := ko.Load(posflag.Provider(f, ".", ko), nil); err != nil {
-		lo.Fatalf("error loading flags: %v", err)
-	}
-}
+	// Load CLI flag overrides (highest prior
