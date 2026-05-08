@@ -87,6 +87,17 @@ func init() {
 
 	// Load environment variables (prefix LISTMONK_).
 	// Using "__" as the nested key separator so that e.g. LISTMONK_DB__HOST maps to db.host.
+	// The strings.ToLower call ensures env var keys are normalised before being
+	// passed to koanf, which expects lowercase dot-separated keys.
 	if err := ko.Load(env.Provider("LISTMONK_", ".", func(s string) string {
-		return strings.Replace(
-			strings.ToLower(strings.TrimPrefix(s, "LISTMONK_")), "__",
+		return strings.ToLower(strings.ReplaceAll(
+			strings.TrimPrefix(s, "LISTMONK_"), "__", "."))
+	}), nil); err != nil {
+		lo.Fatalf("error loading environment variables: %v", err)
+	}
+
+	// Load flags into koanf so CLI flags override config file values.
+	if err := ko.Load(posflag.Provider(f, ".", ko), nil); err != nil {
+		lo.Fatalf("error loading flags: %v", err)
+	}
+}
