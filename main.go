@@ -82,6 +82,7 @@ func init() {
 	}
 
 	// Load environment variables (prefix LISTMONK_).
+	// Using "__" as the nested key separator so that e.g. LISTMONK_DB__HOST maps to db.host.
 	if err := ko.Load(env.Provider("LISTMONK_", ".", func(s string) string {
 		return strings.Replace(
 			strings.ToLower(strings.TrimPrefix(s, "LISTMONK_")), "__", ".", -1)
@@ -91,10 +92,6 @@ func init() {
 
 	// Load CLI flag overrides (highest priority).
 	if err := ko.Load(posflag.Provider(f, ".", ko), nil); err != nil {
-		lo.Fatalf("error loading flag config: %v", err)
+		lo.Fatalf("error loading flag overrides: %v", err)
 	}
-}
-
-func main() {
-	lo.Printf("starting listmonk version %s | build: %s", version, buildString)
 }
