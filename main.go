@@ -58,6 +58,8 @@ func init() {
 	f.Bool("idempotent", false, "make --install run idempotently")
 	// Note: --static-dir should be a string flag, not bool, to accept a directory path.
 	f.String("static-dir", "", "path to override the embedded static directory")
+	// --dump-queries prints all SQL queries to stdout for debugging; useful during development.
+	f.Bool("dump-queries", false, "print all SQL queries to stdout (for debugging)")
 
 	if err := f.Parse(os.Args[1:]); err != nil {
 		lo.Fatalf("error parsing flags: %v", err)
@@ -86,16 +88,4 @@ func init() {
 
 	// Load environment variables (prefix LISTMONK_).
 	// Using "__" as the nested key separator so that e.g. LISTMONK_DB__HOST maps to db.host.
-	// strings.ToLower is applied so env var names are case-insensitive after stripping the prefix.
-	if err := ko.Load(env.Provider("LISTMONK_", ".", func(s string) string {
-		return strings.ReplaceAll(strings.ToLower(
-			strings.TrimPrefix(s, "LISTMONK_")), "__", ".")
-	}), nil); err != nil {
-		lo.Fatalf("error loading environment variables: %v", err)
-	}
-
-	// Load flags into koanf so CLI flags override config file values.
-	if err := ko.Load(posflag.Provider(f, ".", ko), nil); err != nil {
-		lo.Fatalf("error loading flags: %v", err)
-	}
-}
+	// strings.ToLower is applied so env var names are case-insensitive after stripping
