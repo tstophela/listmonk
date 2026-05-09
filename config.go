@@ -29,6 +29,8 @@ func initConfig(ko *koanf.Koanf, flags *spf13flag.FlagSet) error {
 
 	// Load environment variables with the prefix LISTMONK_.
 	// LISTMONK_app__address becomes app.address in the config.
+	// Note: double underscore (__) is used as the delimiter for nested keys
+	// because a single underscore may appear in key names themselves.
 	if err := ko.Load(env.Provider("LISTMONK_", ".", func(s string) string {
 		return strings.Replace(
 			strings.ToLower(strings.TrimPrefix(s, "LISTMONK_")),
@@ -47,6 +49,9 @@ func initConfig(ko *koanf.Koanf, flags *spf13flag.FlagSet) error {
 
 // registerFlags registers all command-line flags for the application.
 func registerFlags(f *spf13flag.FlagSet) {
+	// Default to looking for config.toml in the current directory.
+	// You can specify multiple config files and they will be merged in order,
+	// with later files taking precedence over earlier ones.
 	f.StringSlice("config", []string{"config.toml"},
 		"path to one or more config files (will be merged in order)")
 	f.Bool("install", false,
