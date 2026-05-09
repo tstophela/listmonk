@@ -88,7 +88,7 @@ func init() {
 
 	// Load environment variables (prefix LISTMONK_).
 	// Variables are mapped by lowercasing and replacing __ with . so that
-	// e.g. LISTMONK_DB__HOST maps to db.host in the config tree.
+	// e.g. LISTMONK_DB__HOST maps to db.host in the config.
 	if err := ko.Load(env.Provider("LISTMONK_", ".", func(s string) string {
 		return strings.Replace(strings.ToLower(
 			strings.TrimPrefix(s, "LISTMONK_")), "__", ".", -1)
@@ -96,7 +96,7 @@ func init() {
 		lo.Fatalf("error loading environment variables: %v", err)
 	}
 
-	// Override config with any flags explicitly set on the command line.
+	// Override config with any CLI flags that were explicitly set.
 	if err := ko.Load(posflag.Provider(f, ".", ko), nil); err != nil {
 		lo.Fatalf("error loading flags: %v", err)
 	}
